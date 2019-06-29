@@ -2,10 +2,12 @@ apiVersion: skaffold/v1beta11
 kind: Config
 build:
   artifacts:
-  - image: gcr.io/google-samples/gb-frontend:v4
+  - image: mohri1219/skaffold-example-frontend
     context: php-redis
-  - image: k8s.gcr.io/redis:e2e
+  - image: mohri1219/skaffold-example-redis-slave
     context: redis-slave
+  local:
+    push: false
 deploy:
   kubectl:
     manifests:

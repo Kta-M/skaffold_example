@@ -1,8 +1,42 @@
-version: 2.1
+version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:4.8.2
+      - image: docker:18.09
     steps:
-      - checkout
-      - run: echo "hello world"
+    - run:
+        name: set shell and install curl
+        command: |
+          set -x; \
+          apk add --no-cache --virtual .fetch-deps curl git
+
+    - checkout
+    - setup_remote_docker
+
+    - run:
+        name: install kubectl
+        command: |
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl && \
+          chmod +x ./kubectl && \
+          mv ./kubectl /usr/local/bin/kubectl
+
+    - run:
+        name: install skaffold
+        command: |
+          curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.32.0/skaffold-linux-amd64 && \
+          chmod +x skaffold && \
+          mv skaffold /usr/local/bin
+
+    - run:
+        name: login to dockerhub
+        command: echo $DOCKER_HUB_PSW | base64 -d | docker login -u $DOCKER_HUB_USR --password-stdin
+
+    - run:
+        name: skaffold run
+        command: skaffold run
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - build
