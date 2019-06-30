@@ -5,7 +5,7 @@ jobs:
       - image: docker:18.09
     steps:
     - run:
-        name: set shell and install curl
+        name: set shell and install tools
         command: |
           set -x; \
           apk add --no-cache --virtual .fetch-deps curl git python py-pip less groff
@@ -21,6 +21,13 @@ jobs:
           mv ./kubectl /usr/local/bin/kubectl
 
     - run:
+        name: install container-structure-test
+        command: |
+          curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && \
+          chmod +x container-structure-test-linux-amd64 && \
+          mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+
+    - run:
         name: install aws cli
         command: pip install awscli
 
@@ -33,10 +40,7 @@ jobs:
 
     - run:
         name: setup kubeconfig
-        command: |
-          aws --version && \
-          echo $CLUSTER_NAME && \
-          aws eks update-kubeconfig --name $CLUSTER_NAME
+        command: aws eks update-kubeconfig --name $CLUSTER_NAME
 
     - run:
         name: login to dockerhub

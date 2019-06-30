@@ -8,6 +8,10 @@ build:
     context: redis-slave
   local:
     push: false
+test:
+  - image: mohri1219/skaffold-example-frontend
+    structureTests:
+      - ./structure-test/frontend.yaml
 deploy:
   kubectl:
     manifests:
