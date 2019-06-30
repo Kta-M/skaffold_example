@@ -51,7 +51,7 @@ jobs:
 
     - run:
         name: skaffold run
-        command: skaffold run
+        command: skaffold run --profile prd
 
 workflows:
   version: 2
