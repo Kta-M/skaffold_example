@@ -8,7 +8,7 @@ jobs:
         name: set shell and install curl
         command: |
           set -x; \
-          apk add --no-cache --virtual .fetch-deps curl git
+          apk add --no-cache --virtual .fetch-deps curl git python py-pip less groff
 
     - checkout
     - setup_remote_docker
@@ -21,15 +21,26 @@ jobs:
           mv ./kubectl /usr/local/bin/kubectl
 
     - run:
+        name: install aws cli
+        command: pip install awscli
+
+    - run:
+        name: setup kubeconfig
+        command: |
+          aws --version && \
+          echo $CLUSTER_NAME && \
+          aws eks update-kubeconfig --name $CLUSTER_NAME
+
+    - run:
+        name: login to dockerhub
+        command: echo $DOCKER_HUB_PSW | base64 -d | docker login -u $DOCKER_HUB_USR --password-stdin
+
+    - run:
         name: install skaffold
         command: |
           curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.32.0/skaffold-linux-amd64 && \
           chmod +x skaffold && \
           mv skaffold /usr/local/bin
-
-    - run:
-        name: login to dockerhub
-        command: echo $DOCKER_HUB_PSW | base64 -d | docker login -u $DOCKER_HUB_USR --password-stdin
 
     - run:
         name: skaffold run
